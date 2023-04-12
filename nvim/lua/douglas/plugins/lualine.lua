@@ -1,6 +1,5 @@
 require("lualine").setup({
 	options = {
-		theme = "monokai-pro",
-		-- empty with newpaper colosheme
+		theme = "auto", -- empty with newpaper colosheme
 	},
 })

@@ -103,13 +103,7 @@ return packer.startup(function(use)
 		end,
 	})
 	-- theme
-	use({
-		"loctvl842/monokai-pro.nvim",
-		config = function()
-			require("monokai-pro").setup()
-		end,
-	})
-
+	use({ "nyoom-engineering/oxocarbon.nvim" })
 	-- auto closing
 	use("windwp/nvim-autopairs") -- autoclose parens, brackets, quotes, etc...
 	use({ "windwp/nvim-ts-autotag", after = "nvim-treesitter" }) -- autoclose tags

@@ -8,7 +8,7 @@ These dot files include only my config files for Neovim, in the future will uplo
 
 
 # IMPORTANT NOTICE
-** My personal config uses copilot, thus if you have access to copilot then use the traditional setup guide which github provides for setting up otherwise go and delete the github pilot requirement in the packer file `plugin-setup.lua` ** 
+**My personal config uses copilot, thus if you have access to copilot then use the traditional setup guide which github provides for setting up otherwise go and delete the github pilot requirement in the packer file `plugin-setup.lua`** 
 
 ## Plugins
 

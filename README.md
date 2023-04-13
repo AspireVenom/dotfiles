@@ -1,10 +1,10 @@
 # NVIM config
 These dot files include only my config files for Neovim, in the future will upload my yabai and skhd config files too.
 
-1. [Dotfiles](#NVIM_config)
-2. [Plugins](##Plugins)
-3. [Installation](##Installation)
-4. [Contributing](##Contributing)
+1. [Config](#NVIM_config)
+2. [Plugins](#Plugins)
+3. [Installation](#Installation)
+4. [Contributing](#Contributing)
 
 
 

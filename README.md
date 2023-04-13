@@ -31,8 +31,8 @@ I reccomend that you ensure you have git installed, and perform a fork of the re
 - It is possible that you fork it manually through github, located at the top of this repository or,
 - Through terminal:
 
-1. Make sure you are located within your parent directory '~'
-2. execute 'gh repo fork https://github.com/AspireVenom/dotfiles --clone'
+1. Make sure you are located within your parent directory ' ~ '
+2. execute ' gh repo fork https://github.com/AspireVenom/dotfiles --clone '
 - This will make a clone on your local device of this repository.
 
 

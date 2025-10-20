@@ -1,0 +1,140 @@
+@import "../omarchy/current/theme/waybar.css";
+
+window#waybar {
+  background-color: @transparent;
+  color: @foreground;
+}
+
+* {
+  background-color: transparent;
+  color: @foreground;
+
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  font-family: 'Monaspace Radon Var';
+  font-size: 12px;
+}
+
+.modules-left {
+  margin-left: 8px;
+}
+
+.modules-right {
+  margin-right: 8px;
+}
+
+#workspaces button {
+  all: initial;
+  padding: 0 6px;
+  margin: 0 1.5px;
+  min-width: 9px;
+}
+
+#workspaces button.empty {
+  opacity: 0.5;
+}
+
+#tray,
+#cpu,
+#battery,
+#network,
+#bluetooth,
+#pulseaudio,
+#custom-omarchy,
+#custom-screenrecording-indicator,
+#custom-update {
+  min-width: 12px;
+  margin: 0 7.5px;
+}
+
+#custom-expand-icon {
+  margin-right: 7px;
+}
+
+tooltip {
+  padding: 2px;
+}
+
+#custom-update {
+  font-size: 10px;
+}
+
+#clock {
+  margin-left: 8.75px;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+#custom-screenrecording-indicator {
+  min-width: 12px;
+  margin-left: 8.75px;
+  font-size: 10px;
+}
+
+#custom-screenrecording-indicator.active {
+  color: #a55555;
+}
+
+/* Everforest accents and tiles */
+window#waybar {
+  /* keep bg from theme import but allow subtle translucency fallback */
+  background: transparent;
+}
+
+/* Shared tile look for modules */
+#clock,
+#network,
+#battery,
+#pulseaudio,
+#bluetooth,
+#tray,
+#memory,
+#cpu,
+#temperature,
+#power-profiles-daemon,
+#vpn,
+#keyboard-state,
+#custom-weather,
+#custom-update,
+#custom-nowplaying,
+#custom-git,
+#custom-pomodoro,
+#custom-uptime {
+  background: rgba(50, 60, 65, 0.55);
+  border-radius: 8px;
+  border: 1px solid rgba(167, 192, 128, 0.35); /* everforest green */
+  padding: 4px 8px;
+}
+
+/* Workspace pills */
+#workspaces button {
+  color: #a6b0a0;
+  background: transparent;
+  border-radius: 8px;
+}
+
+#workspaces button.active {
+  background: rgba(167, 192, 128, 0.25);
+  color: #2b3339;
+}
+
+/* Notifications count accent (swaync) */
+#custom-notifications {
+  color: #a7c080;
+}
+
+/* Mic muted state */
+#pulseaudio.muted,
+#pulseaudio#mic.source-muted {
+  color: #e67e80;
+}
+
+tooltip {
+  background: rgba(43, 51, 57, 0.95);
+  border: 1px solid rgba(167, 192, 128, 0.35);
+  color: #d3c6aa;
+  border-radius: 8px;
+}

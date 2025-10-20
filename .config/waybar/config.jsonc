@@ -1,0 +1,297 @@
+{
+  "reload_style_on_change": true,
+  "layer": "top",
+  "position": "top",
+  "spacing": 6,
+  "height": 28,
+  "modules-left": [
+    "custom/omarchy",
+    "hyprland/workspaces",
+    "custom/gamemode",
+    "idle_inhibitor",
+  ],
+  "modules-center": [
+    "clock",
+    "custom/update",
+    "custom/screenrecording-indicator",
+    "mpris",
+    "custom/nowplaying",
+  ],
+  "modules-right": [
+    "group/tray-expander",
+    "custom/notifications",
+    "pulseaudio",
+    "pulseaudio#mic",
+    "bluetooth",
+    "network",
+    "vpn",
+    "memory",
+    "cpu",
+    "custom/cpu-graph",
+    "temperature",
+    "power-profiles-daemon",
+    "battery",
+    "custom/weather",
+    "keyboard-state",
+    "custom/git",
+    "custom/pomodoro",
+    "custom/uptime",
+  ],
+  "hyprland/workspaces": {
+    "on-click": "activate",
+    "format": "{icon}",
+    "format-icons": {
+      "default": "",
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6": "6",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "active": "󱓻",
+    },
+
+    "persistent-workspaces": {
+      "1": [],
+      "2": [],
+      "3": [],
+      "4": [],
+      "5": [],
+    },
+  },
+
+  "custom/omarchy": {
+    "format": "",
+    "on-click": "omarchy-menu",
+    "tooltip-format": "Omarchy Menu\n\nSuper + Alt + Space",
+  },
+
+  "custom/update": {
+    "format": "",
+    "exec": "omarchy-update-available",
+    "on-click": "omarchy-launch-floating-terminal-with-presentation omarchy-update",
+    "tooltip-format": "Omarchy update available",
+    "signal": 7,
+    "interval": 3600,
+  },
+
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "",
+      "deactivated": "",
+    },
+
+    "tooltip-format": "Idle inhibitor: {status}",
+  },
+
+  "custom/gamemode": {
+    "format": "",
+    "return-type": "json",
+    "exec": "$OMARCHY_PATH/default/waybar/indicators/gamemode.sh",
+    "interval": 10,
+  },
+
+  "mpris": {
+    "format": "{status_icon}",
+    "format-icons": {
+      "playing": "",
+      "paused": "",
+      "stopped": "",
+    },
+
+    "on-click": "playerctl play-pause",
+    "on-click-right": "playerctl next",
+    "tooltip-format": "{player} — {title}",
+  },
+
+  "custom/nowplaying": {
+    "exec": "~/.config/waybar/scripts/nowplaying.sh",
+    "return-type": "json",
+    "interval": 2,
+    "format": "{icon} {title}",
+    "tooltip-format": "{artist} — {title}",
+    "max-length": 36,
+  },
+
+  "pulseaudio": {
+    "format": "{icon}",
+    "on-click": "$TERMINAL --class=Wiremix -e wiremix",
+    "on-click-right": "pamixer -t",
+    "tooltip-format": "Playing at {volume}%",
+    "scroll-step": 5,
+    "format-muted": "",
+    "format-icons": {
+      "default": ["", "", ""],
+    },
+  },
+
+  "pulseaudio#mic": {
+    "source": true,
+    "format": "{format_source}",
+    "format-source": "",
+    "format-source-muted": "",
+    "on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
+    "tooltip-format": "Mic: {source_volume}%",
+  },
+
+  "custom/notifications": {
+    "format": " {count}",
+    "return-type": "json",
+    "exec": "swaync-client -swb",
+    "on-click": "swaync-client -t -sw",
+    "interval": 5,
+  },
+
+  "network": {
+    "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+    "format": "{icon}",
+    "format-wifi": "{icon}",
+    "format-ethernet": "󰀂",
+    "format-disconnected": "󰤮",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)\n↓{bandwidthDownBits} ↑{bandwidthUpBits}",
+    "tooltip-format-ethernet": "↓{bandwidthDownBits} ↑{bandwidthUpBits}",
+    "interval": 3,
+    "on-click": "omarchy-launch-wifi",
+  },
+
+  "vpn": {
+    "format": "{icon}",
+    "format-icons": {
+      "disabled": "󰖂",
+      "disconnected": "󰅛",
+      "connected": "󰦝",
+    },
+
+    "tooltip-format": "VPN: {state}",
+    "on-click": "nm-connection-editor",
+  },
+
+  "memory": {
+    "interval": 5,
+    "format": " {percentage}%",
+    "tooltip-format": "{used:0.1f}GiB / {total:0.1f}GiB",
+  },
+
+  "cpu": {
+    "interval": 3,
+    "format": "{icon}",
+    "format-icons": ["󰪞", "󰪟", "󰪠", "󰪡", "󰻠"],
+    "tooltip-format": "{usage}% CPU",
+    "on-click": "$TERMINAL -e btop",
+  },
+
+  "custom/cpu-graph": {
+    "exec": "~/.config/waybar/scripts/cpu-graph.sh",
+    "interval": 2,
+    "tooltip": false,
+    "max-length": 6,
+  },
+
+  "temperature": {
+    "thermal-zone": 0,
+    "hwmon-path": "/sys/class/thermal/thermal_zone0/temp",
+    "critical-threshold": 85,
+    "format": " {temperatureC}°",
+    "interval": 5,
+  },
+
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Power: {profile}",
+    "format-icons": {
+      "performance": "",
+      "balanced": "",
+      "power-saver": "",
+    },
+
+    "on-click": "powerprofilesctl set performance",
+    "on-click-right": "powerprofilesctl set power-saver",
+  },
+
+  "battery": {
+    "format": "{capacity}% {icon}",
+    "format-discharging": "{icon}",
+    "format-charging": "{icon}",
+    "format-plugged": "",
+    "format-icons": {
+      "charging": ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉", "󰢞", "󰂊", "󰂋", "󰂅"],
+      "default": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+    },
+
+    "format-full": "󰂅",
+    "tooltip-format-discharging": "{power:>1.0f}W↓ {capacity}%",
+    "tooltip-format-charging": "{power:>1.0f}W↑ {capacity}%",
+    "interval": 5,
+    "on-click": "omarchy-menu power",
+    "states": {
+      "warning": 20,
+      "critical": 10,
+    },
+  },
+
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "󰂲",
+    "format-connected": "",
+    "tooltip-format": "Devices connected: {num_connections}",
+    "on-click": "blueberry",
+  },
+
+  "keyboard-state": {
+    "numlock": true,
+    "capslock": true,
+    "format": "{name}",
+    "format-capslock": "⬆",
+    "format-numlock": "⎈",
+    "format-disabled": "",
+  },
+
+  "group/tray-expander": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 600,
+      "children-class": "tray-group-item",
+      "easing": "ease-in-out",
+    },
+
+    "modules": ["custom/expand-icon", "tray"],
+  },
+
+  "custom/expand-icon": {
+    "format": " ",
+    "tooltip": false,
+  },
+
+  "tray": {
+    "icon-size": 12,
+    "spacing": 12,
+  },
+
+  "custom/git": {
+    "exec": "~/.config/waybar/scripts/git-branch.sh",
+    "interval": 5,
+    "format": "{}",
+    "tooltip": false,
+    "max-length": 18,
+  },
+
+  "custom/pomodoro": {
+    "exec": "~/.config/waybar/scripts/pomodoro.sh",
+    "interval": 1,
+    "on-click": "~/.config/waybar/scripts/pomodoro.sh toggle",
+    "on-click-right": "~/.config/waybar/scripts/pomodoro.sh reset",
+    "tooltip": false,
+    "max-length": 12,
+  },
+
+  "custom/uptime": {
+    "exec": "printf \" $(uptime -p | sed 's/up //')\"",
+    "interval": 60,
+    "tooltip": false,
+    "max-length": 16,
+  },
+}

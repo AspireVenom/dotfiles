@@ -1,0 +1,37 @@
+# Ignore caches, big app data, and volatile files
+# Browsers / Electron apps
+.config/chromium/
+.config/BraveSoftware/
+.config/google-chrome*/
+.config/vivaldi*/
+.config/Cursor/
+.config/Code*/
+
+# Media caches
+.cache/
+.thumbnails/
+
+# Runtime state
+.config/uwsm/
+.config/waybar/scripts/**/cache/
+.config/hypr/*.log
+
+# Secrets (adjust as needed)
+.ssh/
+.gnupg/
+
+# App data not meant for dotfiles
+.config/spotify/
+.config/obs-studio/
+.config/1Password/
+.config/Typora/
+.config/kitty/.sessions/
+
+# Node / Python
+**/node_modules/
+**/.venv/
+**/__pycache__/
+
+# OS junk
+.DS_Store
+Thumbs.db

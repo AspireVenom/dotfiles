@@ -1,83 +1,175 @@
 @import "../omarchy/current/theme/waybar.css";
 
-* {
-  background-color: @transparent;
-  color: @foreground;
+/* ---------- Base ---------- */
 
-  border: none;
-  border-radius: 0;
-  min-height: 0;
-  font-family: 'CaskaydiaMono Nerd Font';
-  font-size: 12px;
+window#waybar {
+  background: transparent;
+  color: @foreground;
+  padding: 4px 8px; /* smaller outer padding */
 }
 
+* {
+  background-color: transparent;
+  color: @foreground;
+  border: none;
+  font-family: "Monaspace Radon Var";
+  font-size: 12px;
+  min-height: 0;
+}
+
+/* ---------- Unified Transparent Groups ---------- */
+
+.modules-left,
+.modules-center,
+.modules-right {
+  padding: 2px 6px; /* tighter border-to-content spacing */
+  margin: 0 6px; /* small gap between sections */
+  background: transparent;
+  border: 1px solid rgba(167, 192, 128, 0.4);
+  border-radius: 9px;
+  box-shadow: none;
+  transition: border-color 160ms ease;
+}
+
+.modules-left:hover,
+.modules-center:hover,
+.modules-right:hover {
+  border-color: rgba(167, 192, 128, 0.65);
+}
+
+/* remove any dividers or excess margins */
+.modules-left > *,
+.modules-center > *,
+.modules-right > * {
+  margin: 0 4px;
+}
+
+/* tighten edges even more */
 .modules-left {
   margin-left: 8px;
 }
-
 .modules-right {
   margin-right: 8px;
 }
 
+/* ---------- Modules ---------- */
+
+#clock,
+#network,
+#battery,
+#pulseaudio,
+#bluetooth,
+#tray,
+#memory,
+#cpu,
+#temperature,
+#power-profiles-daemon,
+#vpn,
+#keyboard-state,
+#custom-weather,
+#custom-update,
+#custom-nowplaying,
+#custom-git,
+#custom-pomodoro,
+#custom-uptime {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0 4px; /* minimal inner space */
+  margin: 0;
+  min-width: 10px;
+}
+
+#clock:hover,
+#network:hover,
+#battery:hover,
+#pulseaudio:hover,
+#bluetooth:hover,
+#tray:hover,
+#memory:hover,
+#cpu:hover,
+#temperature:hover,
+#power-profiles-daemon:hover,
+#vpn:hover,
+#keyboard-state:hover,
+#custom-weather:hover,
+#custom-update:hover,
+#custom-nowplaying:hover,
+#custom-git:hover,
+#custom-pomodoro:hover,
+#custom-uptime:hover {
+  color: #d3c6aa;
+}
+
+/* ---------- Workspaces ---------- */
+
 #workspaces button {
-  all: initial;
-  padding: 0 6px;
-  margin: 0 1.5px;
-  min-width: 9px;
+  background: transparent;
+  color: #a6b0a0;
+  border-radius: 6px;
+  padding: 2px 6px;
+  margin: 0 1px;
+  min-width: 12px;
+  font-family: "Monaspace Radon Var";
+  font-size: 12px;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
 }
 
 #workspaces button.empty {
-  opacity: 0.5;
+  opacity: 0.55;
+}
+#workspaces button:hover {
+  background: rgba(167, 192, 128, 0.15);
+  color: #d7dfcc;
 }
 
-#cpu,
-#battery,
-#pulseaudio,
-#custom-omarchy,
-#custom-screenrecording-indicator,
-#custom-update {
-  min-width: 12px;
-  margin: 0 7.5px;
+#workspaces button.active {
+  background: rgba(167, 192, 128, 0.22);
+  color: #2b3339;
+  box-shadow: inset 0 0 0 1px rgba(167, 192, 128, 0.35);
 }
 
-#tray {
-  margin-right: 16px;
+#workspaces button.urgent {
+  background: rgba(230, 126, 128, 0.22);
+  color: #e67e80;
+  box-shadow: inset 0 0 0 1px rgba(230, 126, 128, 0.45);
 }
 
-#bluetooth {
-  margin-right: 17px;
-}
+/* ---------- Accents ---------- */
 
-#network {
-  margin-right: 13px;
-}
-
-#custom-expand-icon {
-  margin-right: 20px;
-}
-
-tooltip {
-  padding: 2px;
-}
-
-#custom-update {
-  font-size: 10px;
-}
-
-#clock {
-  margin-left: 8.75px;
-}
-
-.hidden {
-  opacity: 0;
-}
-
-#custom-screenrecording-indicator {
-  min-width: 12px;
-  margin-left: 8.75px;
-  font-size: 10px;
+#pulseaudio.muted,
+#pulseaudio.source-muted {
+  color: #e67e80;
 }
 
 #custom-screenrecording-indicator.active {
   color: #a55555;
+}
+#custom-notifications {
+  color: #a7c080;
+}
+
+/* ---------- Tooltips ---------- */
+
+tooltip {
+  padding: 3px 6px;
+  background: rgba(43, 51, 57, 0.96);
+  border: 1px solid rgba(167, 192, 128, 0.35);
+  color: #d3c6aa;
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+.modules-left {
+  padding-left: 10px;
+}
+.modules-left > *:first-child {
+  margin-left: 2px;
+  padding-left: 2px;
+}
+
+#custom-omarchy {
+  padding-left: 0px;
+  padding-right: 6px;
 }

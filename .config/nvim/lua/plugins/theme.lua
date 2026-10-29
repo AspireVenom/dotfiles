@@ -1,1 +1,1 @@
-/home/aspire/.config/omarchy/current/theme/neovim.lua
+../../../omarchy/current/theme/neovim.lua

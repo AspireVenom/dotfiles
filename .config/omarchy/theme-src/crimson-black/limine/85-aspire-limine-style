@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Crimson Black styling + Windows entry guard for the Limine boot menu.
+#
+# Installed as /etc/boot/hooks/post.d/85-aspire-limine-style (root-owned copy of this file).
+# limine-entry-tool, limine-update, limine-install and limine-snapper-sync run post.d hooks after
+# every rewrite of limine.conf, so kernel updates, snapshot syncs and even `omarchy refresh limine`
+# (which swaps in the stock Tokyo Night config) get re-styled, and the Windows chainload entry is
+# re-added if anything drops it. Runs before 90-limine-enroll-config so an enrolled hash would
+# match the final file. Idempotent: writes only when something differs.
+#
+# Limine colors: branding/help/countdown are direct RRGGBB; menu entries use term_foreground, and
+# the selected entry is reverse video (term_foreground becomes the bar). Entry comments are SGR 36,
+# i.e. palette slot 6 (cyan), so that slot carries ink instead of a hue.
+#
+# The Windows entry is per machine: apply-boot-style.sh detects the ESP holding bootmgfw.efi and
+# records its PARTUUID in /etc/default/aspire-limine. No PARTUUID there means no Windows entry.
+set -euo pipefail
+
+CONF="${LIMINE_CONF:-/boot/limine.conf}"
+SETTINGS="${ASPIRE_LIMINE_SETTINGS:-/etc/default/aspire-limine}"
+[[ -f $CONF ]] || exit 0
+
+WINDOWS_ESP_PARTUUID=""
+if [[ -f $SETTINGS ]]; then
+  WINDOWS_ESP_PARTUUID=$(sed -n 's/^WINDOWS_ESP_PARTUUID=\([0-9a-fA-F-]*\)$/\1/p' "$SETTINGS" | tail -1)
+fi
+
+HEADER=(
+  "interface_branding: Aspire"
+  "interface_branding_color: ef2a42"
+  "interface_help_color: e6e3df"
+  "interface_help_color_bright: ef2a42"
+  "term_background: 000000"
+  "backdrop: 000000"
+  "term_palette: 1a1a1a;ef2a42;a9b8a3;d9c9a3;a9aeb9;e8808b;e6e3df;e6e3df"
+  "term_palette_bright: 7c7c7c;f14157;c5d1c0;ece0c2;c9ccd4;f4a9b0;ffffff;ffffff"
+  "term_foreground: ef2a42"
+  "term_foreground_bright: f14157"
+  "term_background_bright: 5c0d16"
+)
+
+WINDOWS_ENTRY="/Windows
+comment: Windows Boot Manager
+protocol: efi_chainload
+path: guid($WINDOWS_ESP_PARTUUID):/EFI/Microsoft/Boot/bootmgfw.efi"
+
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
+
+# Global options live above the first entry ("/..."). Replace each key there, or insert missing
+# keys just before the first entry. Entry bodies are never touched.
+printf '%s\n' "${HEADER[@]}" | awk '
+  NR == FNR { split($0, kv, ": "); want[kv[1]] = $0; order[++n] = kv[1]; next }
+  !in_entries && /^\// {
+    for (i = 1; i <= n; i++) if (!(order[i] in seen)) print want[order[i]]
+    in_entries = 1
+  }
+  !in_entries {
+    if (match($0, /^[a-z_]+:/)) {
+      key = substr($0, 1, RLENGTH - 1)
+      if (key in want) { print want[key]; seen[key] = 1; next }
+    }
+    if ($0 ~ /^# Terminal colors/) { print "# Terminal colors (Crimson Black)"; next }
+  }
+  { print }
+  END {
+    if (!in_entries) for (i = 1; i <= n; i++) if (!(order[i] in seen)) print want[order[i]]
+  }
+' - "$CONF" >"$tmp"
+
+if [[ -n $WINDOWS_ESP_PARTUUID ]] && ! grep -q 'bootmgfw\.efi' "$tmp"; then
+  printf '\n%s\n' "$WINDOWS_ENTRY" >>"$tmp"
+fi
+
+if cmp -s "$tmp" "$CONF"; then
+  exit 0
+fi
+
+[[ -e $CONF.pre-aspire ]] || cp -p "$CONF" "$CONF.pre-aspire"
+cat "$tmp" >"$CONF"
+sync -f "$CONF" 2>/dev/null || sync
+echo "aspire-limine-style: restyled $CONF"

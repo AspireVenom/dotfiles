@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# Aspire screensaver — based on omarchy-screensaver, with rotating color
+# palettes, a curated TTE effect pool, and a live clock line under the logo.
+
+screensaver_in_focus() {
+  hyprctl activewindow -j | jq -e '.class == "org.omarchy.screensaver"' >/dev/null 2>&1
+}
+
+exit_screensaver() {
+  hyprctl keyword cursor:invisible false &>/dev/null || true
+  pkill -x tte 2>/dev/null
+  pkill -f org.omarchy.screensaver 2>/dev/null
+  exit 0
+}
+
+# Exit the screensaver on signals and input from keyboard and mouse
+trap exit_screensaver SIGINT SIGTERM SIGHUP SIGQUIT
+
+printf '\033]11;rgb:00/00/00\007' # Set background color to black
+
+hyprctl keyword cursor:invisible true &>/dev/null
+
+tty=$(tty 2>/dev/null)
+art=~/.config/omarchy/branding/screensaver.txt
+input="${XDG_RUNTIME_DIR:-/tmp}/aspire-screensaver-$$.txt"
+cleanup() { rm -f "$input"; }
+trap cleanup EXIT
+
+art_width=$(awk '{ if (length > w) w = length } END { print w }' "$art")
+
+center() {
+  local s=$1 pad=$(((art_width - ${#s}) / 2))
+  ((pad < 0)) && pad=0
+  printf '%*s%s\n' "$pad" '' "$s"
+}
+
+build_input() {
+  {
+    cat "$art"
+    echo
+    echo
+    center "$(date +"%H:%M")"
+    center "$(date +"%A, %B %-d")"
+  } >"$input"
+}
+
+# Gradient palettes: violet dusk, glacier, ember, terminal green,
+# synthwave, moonlight
+palettes=(
+  "a855f7 6d28d9 22d3ee"
+  "22d3ee 0ea5e9 a5f3fc"
+  "f97316 ef4444 fde047"
+  "00ff87 00b869 9dffce"
+  "f472b6 a855f7 38bdf8"
+  "e2e8f0 64748b e2e8f0"
+)
+
+curated=(
+  beams blackhole bouncyballs bubbles burn colorshift crumble decrypt
+  errorcorrect expand fireworks highlight laseretch matrix middleout
+  orbittingvolley overflow pour rain rings scattered slice slide smoke
+  spotlights spray swarm sweep synthgrid thunderstorm unstable vhstape
+  waves wipe
+)
+
+while true; do
+  build_input
+
+  read -ra palette <<<"${palettes[RANDOM % ${#palettes[@]}]}"
+  effect=${curated[RANDOM % ${#curated[@]}]}
+
+  case $effect in
+  synthgrid) # does not accept --final-gradient-stops
+    effect_args=(synthgrid)
+    ;;
+  matrix) # shorten the rain phase so cycles keep rotating
+    effect_args=(matrix --rain-time 8 --final-gradient-stops "${palette[@]}")
+    ;;
+  decrypt)
+    effect_args=(decrypt --ciphertext-colors "${palette[@]}" --final-gradient-stops "${palette[@]}")
+    ;;
+  *)
+    effect_args=("$effect" --final-gradient-stops "${palette[@]}")
+    ;;
+  esac
+
+  # 1 in 6 cycles: let tte surprise us with anything in its catalog
+  ((RANDOM % 6 == 0)) && effect_args=(--random-effect)
+
+  tte -i "$input" \
+    --frame-rate 120 --canvas-width 0 --canvas-height 0 --reuse-canvas \
+    --anchor-canvas c --anchor-text c --no-eol --no-restore-cursor \
+    "${effect_args[@]}" &
+
+  while pgrep -t "${tty#/dev/}" -x tte >/dev/null; do
+    if read -n1 -t 1 || ! screensaver_in_focus; then
+      exit_screensaver
+    fi
+  done
+
+  sleep 1.5 # hold the finished frame briefly before the next effect
+done

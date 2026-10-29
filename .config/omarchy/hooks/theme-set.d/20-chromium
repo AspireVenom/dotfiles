@@ -1,0 +1,23 @@
+#!/bin/bash
+# Chromium theme extension for Omarchy themes that opt in (theme ships chromium-extension.optin).
+#
+# omarchy-theme-set-browser runs before hooks and sets the BrowserThemeColor policy, which makes Chromium ignore
+# extension themes. For opt-in themes: publish the rendered manifest to a stable path (loaded permanently via
+# --load-extension in ~/.config/chromium-flags.conf) and drop BrowserThemeColor so the extension theme applies.
+# Other themes keep Omarchy's policy, which overrides the (still loaded) extension.
+THEME="$HOME/.config/omarchy/current/theme"
+EXT="$HOME/.local/share/omarchy-chromium-theme"
+POLICY=/etc/chromium/policies/managed/color.json
+
+[[ -f $THEME/chromium-extension.optin && -f $THEME/chromium-manifest.json ]] || exit 0
+
+mkdir -p "$EXT"
+cp "$THEME/chromium-manifest.json" "$EXT/manifest.json"
+
+if [[ -w $POLICY || (! -e $POLICY && -w ${POLICY%/*}) ]]; then
+  echo '{"BrowserColorScheme": "device"}' >"$POLICY"
+fi
+
+if pgrep -x chromium >/dev/null; then
+  chromium --refresh-platform-policy --no-startup-window &>/dev/null &
+fi

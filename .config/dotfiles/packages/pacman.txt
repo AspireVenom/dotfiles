@@ -1,0 +1,11 @@
+# Needed by the Crimson Black look and the daily workflow (installed with --needed).
+ttf-monaspace-variable
+yaru-icon-theme
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+zsh-completions
+neovim
+tmux
+easyeffects
+github-cli

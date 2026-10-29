@@ -1,53 +1,71 @@
-@import "../omarchy/current/theme/waybar.css";
+/* Waybar: every color comes from the active Omarchy theme via rendered tokens
+   (~/.config/omarchy/themed/waybar-tokens.css.tpl -> current/theme/waybar-tokens.css), so
+   `omarchy theme set` restyles the bar. Tokens: @ink text, @void background, @signal accent,
+   @alert errors, @ash muted, @surface raised, @ember selection. */
+@import "../omarchy/current/theme/waybar-tokens.css";
 
 /* ---------- Base ---------- */
 
 window#waybar {
   background: transparent;
-  color: @foreground;
-  padding: 4px 8px; /* smaller outer padding */
+  color: @ink;
+  padding: 4px 8px;
 }
 
 * {
   background-color: transparent;
-  color: @foreground;
+  color: @ink;
   border: none;
-  font-family: "Monaspace Radon Var";
+  font-family: 'Monaspace Radon Var';
   font-size: 12px;
   min-height: 0;
 }
 
-/* ---------- Unified Transparent Groups ---------- */
+/* ---------- Groups ---------- */
+/* Thin signal outline, no glow: a static glow is a permanently lit band on the OLED panel. */
 
 .modules-left,
 .modules-center,
 .modules-right {
-  padding: 2px 6px; /* tighter border-to-content spacing */
-  margin: 0 6px; /* small gap between sections */
-  background: transparent;
-  border: 1px solid rgba(167, 192, 128, 0.4);
+  padding: 3px 7px;
+  margin: 0 6px;
+  background: alpha(@void, 0.82);
+  border: 1px solid alpha(@signal, 0.42);
   border-radius: 9px;
   box-shadow: none;
-  transition: border-color 160ms ease;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
 }
 
 .modules-left:hover,
 .modules-center:hover,
 .modules-right:hover {
-  border-color: rgba(167, 192, 128, 0.65);
+  border-color: alpha(@signal, 0.85);
 }
 
-/* remove any dividers or excess margins */
 .modules-left > *,
 .modules-center > *,
 .modules-right > * {
-  margin: 0 4px;
+  margin: 0 2px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease,
+    opacity 140ms ease;
 }
 
-/* tighten edges even more */
+.modules-left > *:hover,
+.modules-center > *:hover,
+.modules-right > *:hover {
+  background: alpha(@ink, 0.06);
+}
+
 .modules-left {
   margin-left: 8px;
 }
+
 .modules-right {
   margin-right: 8px;
 }
@@ -63,19 +81,18 @@ window#waybar {
 #memory,
 #cpu,
 #temperature,
-#power-profiles-daemon,
-#vpn,
 #keyboard-state,
-#custom-weather,
 #custom-update,
-#custom-nowplaying,
-#custom-git,
-#custom-pomodoro,
-#custom-uptime {
+#custom-uptime,
+#custom-media,
+#idle_inhibitor,
+
+#group-system-stats,
+#custom-stats-icon {
   background: transparent;
   border: none;
   box-shadow: none;
-  padding: 0 4px; /* minimal inner space */
+  padding: 0 4px;
   margin: 0;
   min-width: 10px;
 }
@@ -89,87 +106,155 @@ window#waybar {
 #memory:hover,
 #cpu:hover,
 #temperature:hover,
-#power-profiles-daemon:hover,
-#vpn:hover,
 #keyboard-state:hover,
-#custom-weather:hover,
 #custom-update:hover,
-#custom-nowplaying:hover,
-#custom-git:hover,
-#custom-pomodoro:hover,
-#custom-uptime:hover {
-  color: #d3c6aa;
+#custom-uptime:hover,
+#custom-media:hover,
+#idle_inhibitor:hover,
+#custom-screenrecording-indicator:hover,
+#group-system-stats:hover,
+#custom-stats-icon:hover {
+  color: @signal;
 }
 
 /* ---------- Workspaces ---------- */
 
 #workspaces button {
   background: transparent;
-  color: #a6b0a0;
+  color: @ink;
   border-radius: 6px;
   padding: 2px 6px;
   margin: 0 1px;
   min-width: 12px;
-  font-family: "Monaspace Radon Var";
+  font-family: 'Monaspace Radon Var';
   font-size: 12px;
+  opacity: 0.55;
   transition:
     background 140ms ease,
-    color 140ms ease;
+    color 140ms ease,
+    opacity 140ms ease;
 }
 
 #workspaces button.empty {
-  opacity: 0.55;
+  opacity: 0.28;
 }
+
 #workspaces button:hover {
-  background: rgba(167, 192, 128, 0.15);
-  color: #d7dfcc;
+  background: alpha(@signal, 0.14);
+  color: @ink;
+  opacity: 1;
 }
 
 #workspaces button.active {
-  background: rgba(167, 192, 128, 0.22);
-  color: #2b3339;
-  box-shadow: inset 0 0 0 1px rgba(167, 192, 128, 0.35);
+  background: alpha(@signal, 0.22);
+  color: @ink;
+  opacity: 1;
+  box-shadow: inset 0 -2px @signal;
 }
 
+/* Solid fill + dark text: 5.08:1 with Crimson Black (light text on red would be ~3.5:1). */
 #workspaces button.urgent {
-  background: rgba(230, 126, 128, 0.22);
-  color: #e67e80;
-  box-shadow: inset 0 0 0 1px rgba(230, 126, 128, 0.45);
+  background: @alert;
+  color: @void;
+  opacity: 1;
+  box-shadow: none;
 }
 
-/* ---------- Accents ---------- */
+/* ---------- State ---------- */
 
 #pulseaudio.muted,
-#pulseaudio.source-muted {
-  color: #e67e80;
+#pulseaudio.source-muted,
+#battery.warning,
+#temperature.critical,
+#battery.critical,
+#network.disconnected {
+  color: @alert;
 }
 
-#custom-screenrecording-indicator.active {
-  color: #a55555;
+#custom-screenrecording-indicator,
+#custom-idle-indicator,
+#custom-notification-silencing-indicator {
+  min-width: 12px;
+  margin-left: 5px;
+  margin-right: 0;
+  font-size: 10px;
+  padding-bottom: 1px;
 }
-#custom-notifications {
-  color: #a7c080;
+
+#custom-screenrecording-indicator.active,
+#custom-idle-indicator.active,
+#custom-notification-silencing-indicator.active,
+#custom-voxtype.recording,
+#idle_inhibitor.activated,
+#custom-media.playing {
+  color: @signal;
+}
+
+#custom-update,
+#custom-media {
+  color: alpha(@ink, 0.72);
+}
+
+#group-system-stats,
+#group-tray-expander {
+  background: alpha(@ink, 0.03);
+  border-radius: 7px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+#custom-stats-icon,
+#custom-expand-icon {
+  opacity: 0.85;
+}
+
+.system-stats-group-item {
+  margin-left: 2px;
 }
 
 /* ---------- Tooltips ---------- */
 
 tooltip {
-  padding: 3px 6px;
-  background: rgba(43, 51, 57, 0.96);
-  border: 1px solid rgba(167, 192, 128, 0.35);
-  color: #d3c6aa;
+  padding: 6px 10px;
+  background: alpha(@void, 0.98);
+  border: 1px solid alpha(@signal, 0.6);
+  color: @ink;
   border-radius: 8px;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  box-shadow: none;
 }
+
+tooltip label {
+  color: @ink;
+}
+
+/* ---------- Layout tweaks ---------- */
+
 .modules-left {
   padding-left: 10px;
 }
+
 .modules-left > *:first-child {
   margin-left: 2px;
   padding-left: 2px;
 }
 
 #custom-omarchy {
-  padding-left: 0px;
+  padding-left: 0;
   padding-right: 6px;
+}
+
+#custom-voxtype {
+  min-width: 12px;
+  margin: 0 0 0 7.5px;
+}
+
+#custom-weather {
+  margin-left: 7.5px;
+  margin-right: 7.5px;
+}
+
+#custom-weather.unavailable {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
 }

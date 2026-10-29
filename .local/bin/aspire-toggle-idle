@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Toggle idle lock/screensaver/screen-off (hypridle) and remember the choice
+# across reboots via the "idle-off" omarchy toggle flag.
+#   aspire-toggle-idle         flip on/off
+#   aspire-toggle-idle apply   enforce saved state (run at login)
+
+if [[ $1 == "apply" ]]; then
+  omarchy-toggle-enabled idle-off || exit 0
+  # hypridle is started by omarchy's own autostart; wait for it, then stop it
+  for _ in {1..20}; do
+    pgrep -x hypridle >/dev/null && break
+    sleep 0.5
+  done
+  pkill -x hypridle
+  pkill -RTMIN+9 waybar
+  exit 0
+fi
+
+omarchy-toggle idle-off
+
+if omarchy-toggle-enabled idle-off; then
+  pkill -x hypridle
+  notify-send -u low "󱫖    Idle lock off (stays off after reboot)"
+else
+  pgrep -x hypridle >/dev/null || uwsm-app -- hypridle >/dev/null 2>&1 &
+  notify-send -u low "󱫖    Idle lock on"
+fi
+
+pkill -RTMIN+9 waybar

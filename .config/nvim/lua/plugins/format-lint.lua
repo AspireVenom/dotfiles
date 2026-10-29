@@ -3,10 +3,10 @@ return {
 		"stevearc/conform.nvim",
 		opts = function(_, opts)
 			opts.formatters_by_ft = vim.tbl_deep_extend("force", opts.formatters_by_ft or {}, {
-				javascript = { "prettierd" },
-				typescript = { "prettierd" },
-				javascriptreact = { "prettierd" },
-				typescriptreact = { "prettierd" },
+				javascript = { "eslint_d" },
+				typescript = { "eslint_d" },
+				javascriptreact = { "eslint_d" },
+				typescriptreact = { "eslint_d" },
 				json = { "prettierd" },
 				jsonc = { "prettierd" },
 				markdown = { "prettierd" },
@@ -17,6 +17,10 @@ return {
 				graphql = { "prettierd" },
 				prisma = { "prettierd" },
 			})
+			opts.format_on_save = {
+				timeout_ms = 3000,
+				lsp_format = "fallback",
+			}
 		end,
 	},
 	{
@@ -31,5 +35,3 @@ return {
 		},
 	},
 }
-
-

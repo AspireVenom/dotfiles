@@ -1,0 +1,18 @@
+#!/bin/bash
+# Spotify follows the Omarchy theme through the Spicetify theme "omarchy" (color scheme "base").
+# Copies the rendered palette; re-applies only when Spotify isn't running (apply restarts the client).
+SRC="$HOME/.config/omarchy/current/theme/spicetify-color.ini"
+DEST="$HOME/.config/spicetify/Themes/omarchy"
+SPICETIFY="$HOME/.spicetify/spicetify"
+
+[[ -f $SRC && -x $SPICETIFY ]] || exit 0
+
+mkdir -p "$DEST"
+cmp -s "$SRC" "$DEST/color.ini" && exit 0
+cp "$SRC" "$DEST/color.ini"
+
+if pgrep -x spotify >/dev/null; then
+  notify-send -u low "Spotify theme updated" "Restart Spotify to see the new colors"
+elif ! "$SPICETIFY" -q apply >/dev/null 2>&1; then
+  notify-send -u normal "Spicetify apply failed" "Run: spicetify backup apply"
+fi

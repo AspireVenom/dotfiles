@@ -1,0 +1,4 @@
+# AUR, installed with yay --needed.
+mpvpaper
+bibata-cursor-theme-bin
+eww

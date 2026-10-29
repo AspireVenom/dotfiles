@@ -1,0 +1,4 @@
+#!/bin/bash
+# Live wallpaper follows the theme: runs when the new theme ships live-wallpaper.glsl, stops otherwise.
+command -v omarchy-livewall >/dev/null || exit 0
+omarchy-livewall ensure

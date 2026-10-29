@@ -1,0 +1,135 @@
+@import "../../../omarchy/current/theme/walker.css";
+
+* {
+  all: unset;
+}
+
+* {
+  font-family: "Monaspace Radon Var", "JetBrainsMono Nerd Font", monospace;
+  font-size: 17px;
+  color: @text;
+}
+
+scrollbar {
+  opacity: 0;
+}
+
+.normal-icons {
+  -gtk-icon-size: 18px;
+}
+
+.large-icons {
+  -gtk-icon-size: 34px;
+}
+
+.window {
+  background: transparent;
+}
+
+.box-wrapper {
+  background: alpha(@base, 0.96);
+  padding: 18px;
+  border: 1px solid alpha(@selected-text, 0.55);
+  border-radius: 18px;
+  box-shadow:
+    0 18px 48px alpha(black, 0.45),
+    0 0 24px alpha(@selected-text, 0.10);
+}
+
+.box {
+  border-spacing: 12px; /* GTK4 has no `spacing` CSS property; GtkBoxLayout reads border-spacing */
+}
+
+.search-container {
+  background: alpha(@background, 0.92);
+  padding: 12px 14px;
+  border: 1px solid alpha(@border, 0.18);
+  border-radius: 14px;
+}
+
+.input {
+  font-size: 19px;
+  min-height: 28px;
+}
+
+.input placeholder {
+  color: alpha(@text, 0.46);
+}
+
+.input:focus,
+.input:active {
+  box-shadow: none;
+  outline: none;
+}
+
+.placeholder,
+.elephant-hint {
+  color: alpha(@text, 0.46);
+  padding: 18px 8px;
+}
+
+child,
+child > * {
+  border-radius: 14px;
+}
+
+child:hover .item-box {
+  background: alpha(@text, 0.05);
+}
+
+child:selected .item-box {
+  /* accent-tinted row keeps @selected-text (accent) readable: 4.87:1 with Crimson Black */
+  background: alpha(@selected-text, 0.12);
+  border: 1px solid alpha(@selected-text, 0.55);
+  box-shadow: none;
+}
+
+child:selected .item-box * {
+  color: @selected-text;
+}
+
+.item-box {
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+}
+
+.item-text-box {
+  all: unset;
+  padding: 8px 0;
+}
+
+.item-text {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.item-subtext {
+  font-size: 13px;
+  min-height: 0px;
+  margin: 2px 0 0 0;
+  padding: 0;
+  color: alpha(@text, 0.58);
+}
+
+.item-image {
+  margin-right: 16px;
+  -gtk-icon-transform: scale(0.92);
+}
+
+.current {
+  font-style: italic;
+}
+
+.keybinds,
+.global-keybinds,
+.item-keybinds,
+.keybind-hints {
+  color: alpha(@text, 0.52);
+  font-size: 13px;
+}
+
+.error {
+  color: @selected-text;
+  margin-top: 8px;
+}

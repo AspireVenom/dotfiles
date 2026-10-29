@@ -1,0 +1,13 @@
+# AUR extras (bootstrap --all-packages).
+android-studio
+deepfilternet-plugin-pipewire-bin
+google-cloud-cli
+local-by-flywheel-bin
+ncurses5-compat-libs
+openrgb-bin
+paru
+skipfish
+slack-desktop
+stripe-cli
+winboat-bin
+zen-browser-bin

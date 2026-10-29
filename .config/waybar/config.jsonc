@@ -7,35 +7,22 @@
   "modules-left": [
     "custom/omarchy",
     "hyprland/workspaces",
-    "custom/gamemode",
     "idle_inhibitor",
   ],
   "modules-center": [
     "clock",
     "custom/update",
     "custom/screenrecording-indicator",
-    "mpris",
-    "custom/nowplaying",
+    "custom/media",
   ],
   "modules-right": [
     "group/tray-expander",
-    "custom/notifications",
+    "custom/notification-silencing-indicator",
     "pulseaudio",
     "pulseaudio#mic",
     "bluetooth",
     "network",
-    "vpn",
-    "memory",
-    "cpu",
-    "custom/cpu-graph",
-    "temperature",
-    "power-profiles-daemon",
-    "battery",
-    "custom/weather",
-    "keyboard-state",
-    "custom/git",
-    "custom/pomodoro",
-    "custom/uptime",
+    "group/system-stats",
   ],
   "hyprland/workspaces": {
     "on-click": "activate",
@@ -51,6 +38,7 @@
       "7": "7",
       "8": "8",
       "9": "9",
+      "10": "0",
       "active": "󱓻",
     },
 
@@ -89,43 +77,25 @@
     "tooltip-format": "Idle inhibitor: {status}",
   },
 
-  "custom/gamemode": {
-    "format": "",
+  // Built-in "mpris" segfaults waybar 0.15.0 in libplayerctl callbacks; this runs playerctl out-of-process.
+  "custom/media": {
+    "exec": "setpriv --pdeathsig TERM $HOME/.config/waybar/scripts/media.sh",
     "return-type": "json",
-    "exec": "$OMARCHY_PATH/default/waybar/indicators/gamemode.sh",
-    "interval": 10,
-  },
-
-  "mpris": {
-    "format": "{status_icon}",
-    "format-icons": {
-      "playing": "",
-      "paused": "",
-      "stopped": "",
-    },
-
+    "restart-interval": 5,
     "on-click": "playerctl play-pause",
-    "on-click-right": "playerctl next",
-    "tooltip-format": "{player} — {title}",
-  },
-
-  "custom/nowplaying": {
-    "exec": "~/.config/waybar/scripts/nowplaying.sh",
-    "return-type": "json",
-    "interval": 2,
-    "format": "{icon} {title}",
-    "tooltip-format": "{artist} — {title}",
-    "max-length": 36,
+    "on-click-right": "playerctl next"
   },
 
   "pulseaudio": {
     "format": "{icon}",
-    "on-click": "xdg-terminal-exec --app-id=com.omarchy.Wiremix -e wiremix",
+    "on-click": "omarchy-launch-audio",
     "on-click-right": "pamixer -t",
     "tooltip-format": "Playing at {volume}%",
     "scroll-step": 5,
     "format-muted": "",
     "format-icons": {
+      "headphone": "",
+      "headset": "",
       "default": ["", "", ""],
     },
   },
@@ -139,14 +109,13 @@
     "tooltip-format": "Mic: {source_volume}%",
   },
 
-  "custom/notifications": {
-    "format": " {count}",
+  "custom/weather": {
+    "exec": "$OMARCHY_PATH/default/waybar/weather.sh",
     "return-type": "json",
-    "exec": "swaync-client -swb",
-    "on-click": "swaync-client -t -sw",
-    "interval": 5,
+    "interval": 60,
+    "tooltip": false,
+    "on-click": "notify-send -u low \"$(omarchy-weather-status)\""
   },
-
   "network": {
     "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
     "format": "{icon}",
@@ -155,20 +124,18 @@
     "format-disconnected": "󰤮",
     "tooltip-format-wifi": "{essid} ({signalStrength}%)\n↓{bandwidthDownBits} ↑{bandwidthUpBits}",
     "tooltip-format-ethernet": "↓{bandwidthDownBits} ↑{bandwidthUpBits}",
+    "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
     "on-click": "omarchy-launch-wifi",
+    "on-click-right": "nm-connection-editor",
   },
 
-  "vpn": {
-    "format": "{icon}",
-    "format-icons": {
-      "disabled": "󰖂",
-      "disconnected": "󰅛",
-      "connected": "󰦝",
-    },
-
-    "tooltip-format": "VPN: {state}",
-    "on-click": "nm-connection-editor",
+  "cpu": {
+    "interval": 3,
+    "format": "{icon} {usage}%",
+    "format-icons": ["󰪞", "󰪟", "󰪠", "󰪡", "󰻠"],
+    "tooltip-format": "{usage}% CPU",
+    "on-click": "omarchy-launch-or-focus-tui btop",
   },
 
   "memory": {
@@ -177,40 +144,12 @@
     "tooltip-format": "{used:0.1f}GiB / {total:0.1f}GiB",
   },
 
-  "cpu": {
-    "interval": 3,
-    "format": "{icon}",
-    "format-icons": ["󰪞", "󰪟", "󰪠", "󰪡", "󰻠"],
-    "tooltip-format": "{usage}% CPU",
-    "on-click": "xdg-terminal-exec btop",
-  },
-
-  "custom/cpu-graph": {
-    "exec": "~/.config/waybar/scripts/cpu-graph.sh",
-    "interval": 2,
-    "tooltip": false,
-    "max-length": 6,
-  },
-
   "temperature": {
     "thermal-zone": 0,
     "hwmon-path": "/sys/class/thermal/thermal_zone0/temp",
     "critical-threshold": 85,
     "format": " {temperatureC}°",
     "interval": 5,
-  },
-
-  "power-profiles-daemon": {
-    "format": "{icon}",
-    "tooltip-format": "Power: {profile}",
-    "format-icons": {
-      "performance": "",
-      "balanced": "",
-      "power-saver": "",
-    },
-
-    "on-click": "powerprofilesctl set performance",
-    "on-click-right": "powerprofilesctl set power-saver",
   },
 
   "battery": {
@@ -228,6 +167,7 @@
     "tooltip-format-charging": "{power:>1.0f}W↑ {capacity}%",
     "interval": 5,
     "on-click": "omarchy-menu power",
+    "on-click-right": "notify-send -u low \"$(omarchy-battery-status)\"",
     "states": {
       "warning": 20,
       "critical": 10,
@@ -237,9 +177,11 @@
   "bluetooth": {
     "format": "",
     "format-disabled": "󰂲",
-    "format-connected": "",
+    "format-off": "󰂲",
+    "format-connected": "󰂱",
+    "format-no-controller": "",
     "tooltip-format": "Devices connected: {num_connections}",
-    "on-click": "blueberry",
+    "on-click": "omarchy-launch-bluetooth",
   },
 
   "keyboard-state": {
@@ -267,26 +209,55 @@
     "tooltip": false,
   },
 
+  "group/system-stats": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 320,
+      "children-class": "system-stats-group-item",
+      "easing": "ease-in-out",
+    },
+    "modules": ["custom/stats-icon", "cpu", "memory", "temperature", "custom/uptime"],
+  },
+
+  "custom/stats-icon": {
+    "format": "󰧑",
+    "tooltip": false,
+  },
+
+  "custom/voxtype": {
+    "exec": "omarchy-voxtype-status",
+    "return-type": "json",
+    "format": "{icon}",
+    "format-icons": {
+      "idle": "",
+      "recording": "󰍬",
+      "transcribing": "󰔟"
+    },
+    "tooltip": true,
+    "on-click-right": "omarchy-voxtype-config",
+    "on-click": "omarchy-voxtype-model"
+  },
+  "custom/screenrecording-indicator": {
+    "on-click": "omarchy-capture-screenrecording",
+    "exec": "$OMARCHY_PATH/default/waybar/indicators/screen-recording.sh",
+    "signal": 8,
+    "return-type": "json"
+  },
+  "custom/idle-indicator": {
+    "on-click": "omarchy-toggle-idle",
+    "exec": "$OMARCHY_PATH/default/waybar/indicators/idle.sh",
+    "signal": 9,
+    "return-type": "json"
+  },
+  "custom/notification-silencing-indicator": {
+    "on-click": "omarchy-toggle-notification-silencing",
+    "exec": "$OMARCHY_PATH/default/waybar/indicators/notification-silencing.sh",
+    "signal": 10,
+    "return-type": "json"
+  },
   "tray": {
     "icon-size": 12,
     "spacing": 12,
-  },
-
-  "custom/git": {
-    "exec": "~/.config/waybar/scripts/git-branch.sh",
-    "interval": 5,
-    "format": "{}",
-    "tooltip": false,
-    "max-length": 18,
-  },
-
-  "custom/pomodoro": {
-    "exec": "~/.config/waybar/scripts/pomodoro.sh",
-    "interval": 1,
-    "on-click": "~/.config/waybar/scripts/pomodoro.sh toggle",
-    "on-click-right": "~/.config/waybar/scripts/pomodoro.sh reset",
-    "tooltip": false,
-    "max-length": 12,
   },
 
   "custom/uptime": {

@@ -35,3 +35,32 @@
 # OS junk
 .DS_Store
 Thumbs.db
+
+# Backups made by Omarchy, editors and Claude
+*.bak*
+*.orig
+
+# Generated / per-machine state (bootstrap recreates these)
+.config/omarchy/current/
+.config/omarchy/themes/
+.config/hypr/host.conf
+.config/hypr/shaders/
+.config/oh-my-zsh/
+.config/spicetify/config-xpui.ini
+.config/spicetify/Themes/omarchy/color.ini
+.config/dotfiles-backup/
+.config/theme-backups/
+
+# Private data that must never be committed
+.config/zsh/.zsh_history
+.config/zsh/.zcompdump*
+.config/pulse/
+.config/gh/
+.config/winboat/
+.config/libreoffice/
+.config/OpenRGB/
+.config/go/
+.config/ibus/
+.config/fcitx/
+.config/fcitx5/
+.config/dconf/

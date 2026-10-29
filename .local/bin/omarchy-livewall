@@ -1,0 +1,115 @@
+#!/bin/bash
+# omarchy-livewall: live GLSL wallpaper for Omarchy themes that ship live-wallpaper.glsl.
+#
+# One mpvpaper instance renders all outputs on the `bottom` layer: above Omarchy's swaybg (background layer, kept
+# as the static fallback and still driven by `omarchy theme bg next`), below windows. mpv renders the theme's
+# shader over a tiny generated black source, so there is no video to decode. A single process shares one GL
+# context: measured ~1.2 GB VRAM / ~270 MB RAM for three monitors, versus ~2.2 GB / ~860 MB with one process per
+# output. A watcher on Hyprland's event socket pauses it only when no monitor can show it (fullscreen window or
+# special workspace on every monitor; OMARCHY_LIVEWALL_PAUSE=covered also counts any tiled window). choom 900 makes
+# keepaspect=no stretches the 16:9 dummy source over every output so portrait screens are fully covered; the shader
+# takes its aspect from target_size, so the pattern itself is never stretched. choom 900 makes
+# it the first process the kernel kills under memory pressure.
+#
+#   omarchy-livewall ensure   start/refresh for the current theme (stops if the theme has no shader)
+#   omarchy-livewall stop     stop everything
+#   omarchy-livewall status   surfaces, pid, pause state, memory
+set -uo pipefail
+
+THEME_SHADER="$HOME/.config/omarchy/current/theme/live-wallpaper.glsl"
+RUN="${XDG_RUNTIME_DIR:-/run/user/$UID}/omarchy-livewall"
+SHADER="$RUN/live-wallpaper.glsl"
+SOCK="$RUN/livewall.sock"
+FPS="${OMARCHY_LIVEWALL_FPS:-30}"
+EVENTS="${XDG_RUNTIME_DIR:-/run/user/$UID}/hypr/${HYPRLAND_INSTANCE_SIGNATURE:-}/.socket2.sock"
+
+wall_pid() { pgrep -f "mpvpaper .*$RUN/livewall\.sock" | head -1; }
+any_pids() { pgrep -f "mpvpaper .*$RUN/"; }
+
+ipc() { # ipc <json>
+  [[ -S $SOCK ]] && printf '%s\n' "$1" | socat -t 0.3 - "UNIX-CONNECT:$SOCK" 2>/dev/null
+}
+
+start_wall() {
+  [[ -n $(wall_pid) ]] && return 0
+  rm -f "$SOCK" "$RUN/state"
+  setsid uwsm-app -- choom -n 900 -- mpvpaper -l bottom \
+    -o "no-audio keepaspect=no input-ipc-server=$SOCK glsl-shaders=$SHADER" \
+    ALL "av://lavfi:color=c=black:s=16x9:r=$FPS" >/dev/null 2>&1 &
+}
+
+stop_wall() {
+  pkill -f "mpvpaper .*$RUN/" 2>/dev/null
+  rm -f "$RUN"/*.sock "$RUN"/state "$RUN"/*.state
+}
+
+stop_watcher() { pkill -f "omarchy-livewall watch" 2>/dev/null; }
+
+# Pause only when every monitor's wallpaper is hidden; only send changes.
+update_pause() {
+  local mons wss hidden
+  mons=$(hyprctl monitors -j) && wss=$(hyprctl workspaces -j) || return 0
+  hidden=$(jq -rn --arg mode "${OMARCHY_LIVEWALL_PAUSE:-fullscreen}" --argjson m "$mons" --argjson w "$wss" '
+    [ $m[] as $mon
+      | ([$w[] | select(.id == $mon.activeWorkspace.id)][0] // {}) as $ws
+      | (if $mode == "covered" then (($ws.windows // 0) > 0) else ($ws.hasfullscreen // false) end)
+        or ($mon.specialWorkspace.id != 0) ]
+    | all')
+  [[ $(cat "$RUN/state" 2>/dev/null) == "$hidden" ]] && return 0
+  ipc "{\"command\":[\"set_property\",\"pause\",$hidden]}" | grep -q '"success"' && echo "$hidden" >"$RUN/state"
+}
+
+watch() {
+  [[ -S $EVENTS ]] || exit 1
+  update_pause
+  socat -U - "UNIX-CONNECT:$EVENTS" | while true; do
+    if read -r -t 5 line; then
+      case ${line%%>>*} in
+        workspace | workspacev2 | focusedmon | focusedmonv2 | openwindow | closewindow | movewindow | movewindowv2 | \
+          changefloatingmode | fullscreen | activespecial | activespecialv2) ;;
+        monitoradded | monitoraddedv2 | monitorremoved | monitorremovedv2) "$0" ensure --no-watch ;;
+        *) continue ;;
+      esac
+      while read -r -t 0.05 _; do :; done # coalesce event bursts
+    elif (($? <= 128)); then
+      break # socket closed: compositor gone
+    fi
+    update_pause # also runs every 5 s to retry if the IPC socket wasn't ready yet
+  done
+}
+
+ensure() {
+  mkdir -p "$RUN"
+  if ! command -v mpvpaper >/dev/null || [[ ! -f $THEME_SHADER ]]; then
+    stop_watcher
+    stop_wall
+    return 0
+  fi
+  local current
+  current=$(wall_pid)
+  # Shader changed, or leftovers from the old one-process-per-output layout: start clean.
+  if ! cmp -s "$THEME_SHADER" "$SHADER" || [[ -n $(any_pids | grep -vx "${current:-none}") ]]; then
+    stop_wall
+    cp "$THEME_SHADER" "$SHADER"
+  fi
+  start_wall
+  [[ ${1:-} == --no-watch ]] && return 0
+  pgrep -f "omarchy-livewall watch" >/dev/null || setsid uwsm-app -- "$0" watch >/dev/null 2>&1 &
+}
+
+status() {
+  local pid paused pss
+  pid=$(wall_pid)
+  paused=$(ipc '{"command":["get_property","pause"]}' | jq -r 'if has("data") then (.data | tostring) else empty end' 2>/dev/null)
+  pss=$([[ -n $pid ]] && awk '/^Pss:/ {printf "%dMB", $2 / 1024}' "/proc/$pid/smaps_rollup")
+  echo "surfaces=$(hyprctl layers | grep -c 'namespace: mpvpaper') pid=${pid:--} paused=${paused:--} pss=${pss:--}"
+  echo "watcher pid=$(pgrep -f 'omarchy-livewall watch' | head -1)"
+}
+
+case ${1:-} in
+  ensure) shift; ensure "$@" ;;
+  stop) stop_watcher; stop_wall ;;
+  status) status ;;
+  watch) watch ;;
+  *) echo "usage: omarchy-livewall {ensure|stop|status}" >&2; exit 2 ;;
+esac

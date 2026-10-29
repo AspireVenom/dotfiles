@@ -1,0 +1,17 @@
+{
+  "name": "Crimson Black",
+  "base": "dark-daltonized",
+  "overrides": {
+    "claude": "#ef2a42",
+    "permission": "#ef2a42",
+    "promptBorder": "#9e1024",
+    "bashBorder": "#e0112b",
+    "autoAccept": "#f14157",
+    "suggestion": "#f14157",
+    "remember": "#e8808b",
+    "selectionBg": "#5c0d16",
+    "rate_limit_fill": "#ef2a42",
+    "rate_limit_empty": "#2e2e2e",
+    "briefLabelClaude": "#ef2a42"
+  }
+}

@@ -1,0 +1,213 @@
+/* Omarchy Spicetify theme: Spotify speaks the desktop's design language.
+   Colors come from color.ini (rendered from the active Omarchy theme), so everything here uses --spice-* tokens:
+   void background, ink text, one signal accent. Structure mirrors the desktop: rounded containers with a thin
+   signal outline (waybar groups, Hyprland windows), signal-tinted selection with a signal border (walker),
+   hairline inputs that turn signal on focus (Slack composer), Monaspace Radon everywhere. */
+
+:root {
+  --cb-font: "Monaspace Radon Var", "Monaspace Radon", "JetBrainsMono Nerd Font", ui-monospace, monospace;
+
+  --cb-void: var(--spice-main);
+  --cb-ink: var(--spice-text);
+  --cb-muted: var(--spice-subtext);
+  --cb-signal: var(--spice-button);
+  --cb-outline: rgba(var(--spice-rgb-button), 0.32);
+  --cb-outline-strong: rgba(var(--spice-rgb-button), 0.7);
+  --cb-hairline: rgba(var(--spice-rgb-text), 0.1);
+  --cb-hover: rgba(var(--spice-rgb-text), 0.05);
+  --cb-signal-soft: rgba(var(--spice-rgb-button), 0.16);
+  --cb-signal-wash: rgba(var(--spice-rgb-button), 0.08);
+
+  --cb-radius-panel: 12px; /* Hyprland window rounding */
+  --cb-radius-item: 8px;
+  --cb-fast: 140ms cubic-bezier(0.23, 1, 0.32, 1);
+
+  --encore-body-font-stack: var(--cb-font) !important;
+  --encore-title-font-stack: var(--cb-font) !important;
+  --encore-variable-font-stack: var(--cb-font) !important;
+}
+
+/* Encore surface tokens: Spotify hardcodes grey fills, green press states and artwork-tinted backgrounds here.
+   Theme sets are nested classes and some sections set these inline, hence the broad selector. */
+:root,
+[class*="encore-"]:not(.encore-inverted-light-set):not(.encore-inverted-set):not(.encore-bright-accent-set),
+[style*="--background"] {
+  --background-base: var(--cb-void) !important;
+  --background-highlight: var(--cb-hover) !important;
+  --background-press: var(--cb-signal-wash) !important;
+  --background-elevated-base: var(--cb-void) !important;
+  --background-elevated-highlight: var(--cb-hover) !important;
+  --background-elevated-press: var(--cb-signal-wash) !important;
+  --background-tinted-base: transparent !important;
+  --background-tinted-highlight: var(--cb-hover) !important;
+  --background-tinted-press: var(--cb-signal-wash) !important;
+  --decorative-subdued: var(--cb-hairline) !important;
+  --essential-bright-accent: var(--cb-signal) !important;
+  --text-bright-accent: var(--cb-signal) !important;
+}
+
+/* Fill sets (primary buttons, play buttons, selected chips): signal fill with void text, like desktop badges. */
+.encore-inverted-light-set,
+.encore-inverted-set,
+.encore-bright-accent-set {
+  --background-base: var(--cb-signal) !important;
+  --background-highlight: var(--spice-button-active) !important;
+  --background-press: var(--spice-button-active) !important;
+  --text-base: var(--cb-void) !important;
+  --essential-base: var(--cb-void) !important;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body,
+button,
+input {
+  font-family: var(--cb-font) !important;
+}
+
+/* ---------- Panels: rounded containers with a thin signal outline ---------- */
+
+.Root__nav-bar,
+.Root__main-view,
+.Root__top-container:not([data-right-sidebar-hidden="true"]) .Root__right-sidebar,
+.Root__right-sidebar-overlay,
+.Root__right-sidebar-peek,
+.Root__now-playing-bar > * {
+  background-color: var(--cb-void) !important;
+  border: 1px solid var(--cb-outline) !important;
+  border-radius: var(--cb-radius-panel) !important;
+  transition: border-color var(--cb-fast);
+}
+
+.Root__nav-bar:hover,
+.Root__main-view:hover,
+.Root__top-container:not([data-right-sidebar-hidden="true"]) .Root__right-sidebar:hover,
+.Root__now-playing-bar > *:hover {
+  border-color: var(--cb-outline-strong) !important;
+}
+
+.Root__now-playing-bar {
+  border-top: none !important;
+}
+
+/* Artwork-tinted headers and gradients stay on the void. */
+.main-entityHeader-backgroundColor,
+.main-actionBarBackground-background,
+.main-topBar-background,
+.main-home-homeHeader {
+  background-color: var(--cb-void) !important;
+  background-image: none !important;
+}
+
+/* ---------- Top bar: hairline controls, signal on focus ---------- */
+
+.main-topBar-searchBar,
+.Root__globalNav .main-globalNav-navLink {
+  background: transparent !important;
+  box-shadow: inset 0 0 0 1px var(--cb-hairline) !important;
+  transition: box-shadow var(--cb-fast);
+}
+
+.main-globalNav-searchInputContainer:hover .main-topBar-searchBar,
+.Root__globalNav .main-globalNav-navLink:hover {
+  box-shadow: inset 0 0 0 1px var(--cb-outline-strong) !important;
+}
+
+.main-globalNav-searchInputContainer:focus-within .main-topBar-searchBar {
+  box-shadow: inset 0 0 0 1px var(--cb-signal), 0 0 0 1px var(--cb-signal) !important;
+}
+
+/* ---------- Selection: signal-tinted fill + signal border (walker) ---------- */
+
+.main-yourLibraryX-listItem[aria-selected="true"] > div,
+.main-trackList-trackListRow[aria-selected="true"] {
+  background: var(--cb-signal-soft) !important;
+  border-color: rgba(var(--spice-rgb-button), 0.55) !important;
+}
+
+.main-trackList-trackListRow:hover {
+  background: var(--cb-hover) !important;
+}
+
+/* ---------- Cards: no grey slabs; hairline appears on hover ---------- */
+
+.main-card-card {
+  background: transparent !important;
+  box-shadow: inset 0 0 0 1px transparent;
+  transition: background-color var(--cb-fast), box-shadow var(--cb-fast);
+}
+
+.main-card-card:hover,
+.main-card-card:focus-within,
+.main-card-card[data-context-menu-open="true"] {
+  background: var(--cb-hover) !important;
+  box-shadow: inset 0 0 0 1px var(--cb-hairline);
+}
+
+/* ---------- Transport: signal controls ---------- */
+
+.x-progressBar-fillColor,
+.x-progressBar-progressFillColor {
+  background-color: var(--cb-signal) !important;
+}
+
+.x-progressBar-progressBarBg {
+  background-color: rgba(var(--spice-rgb-text), 0.18) !important;
+}
+
+.progress-bar,
+[data-testid="volume-bar"] .progress-bar {
+  --fg-color: var(--cb-signal) !important;
+  --bg-color: rgba(var(--spice-rgb-text), 0.18) !important;
+}
+
+/* ---------- Menus: void surface inside a signal frame ---------- */
+
+.main-contextMenu-menu {
+  background: var(--cb-void) !important;
+  border: 1px solid var(--cb-outline-strong) !important;
+  border-radius: var(--cb-radius-panel) !important;
+}
+
+.main-contextMenu-menuItemButton:hover,
+.main-contextMenu-menuItemButton:focus-visible {
+  background: var(--cb-signal-soft) !important;
+  color: var(--cb-ink) !important;
+}
+
+/* ---------- Focus and motion ---------- */
+
+:focus-visible {
+  outline: 2px solid var(--cb-signal) !important;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Spotify-green leftovers and scrollbars ---------- */
+
+.progress-bar {
+  --is-active-fg-color: var(--cb-signal) !important;
+}
+
+.main-contextMenu-menuItemButton[aria-checked="true"],
+[role="menuitemradio"][aria-checked="true"],
+[role="menuitemcheckbox"][aria-checked="true"] {
+  color: var(--cb-signal) !important;
+}
+
+:root {
+  --os-handle-bg: rgba(var(--spice-rgb-text), 0.14) !important;
+  --os-handle-bg-hover: var(--cb-outline-strong) !important;
+  --os-handle-bg-active: var(--cb-signal) !important;
+}

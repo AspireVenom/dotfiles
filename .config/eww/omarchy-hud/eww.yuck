@@ -1,0 +1,117 @@
+(deflisten hud-data :initial "{}"
+  "$HOME/.config/eww/omarchy-hud/scripts/hud-metrics.py")
+
+(defwidget hud-value [label value subtitle]
+  (box :class "hud-value"
+       :orientation "vertical"
+    (label :class "hud-value__label" :text label)
+    (label :class "hud-value__value" :text value)
+    (label :class "hud-value__subtitle" :text subtitle)))
+
+(defwidget hud-panel []
+  (box :class "hud-root"
+       :orientation "vertical"
+       :space-evenly false
+       :halign "fill"
+       :valign "fill"
+    (box :class "hud-header"
+         :halign "fill"
+         :space-evenly false
+      (box :class "hud-title-block"
+           (label :class "hud-title" :text "Omarchy HUD"))
+      (box :class "hud-header-items" :space-evenly false
+           (box :class "chip"
+                (label :class "chip-label" :text "Mode")
+                (label :class "chip-value"
+                       :text {(hud-data.mode) ?: "coding"}))
+           (box :class "chip"
+                (label :class "chip-label" :text "Workspace")
+                (label :class "chip-value"
+                       :text {(hud-data.workspace.workspace_name) ?: "—"}))
+           (box :class "chip"
+                (label :class "chip-label" :text "FPS")
+                (label :class "chip-value"
+                       :text {(hud-data.fps) ?: "—"}))))
+
+    (box :class "hud-cards"
+         :orientation "horizontal"
+         :space-evenly false
+         :halign "fill"
+         :spacing 12
+         (box :class "hud-card"
+              :hexpand true
+              (label :class "hud-card__title" :text "GPU")
+              (box :class "card-data"
+                   :orientation "horizontal"
+                   :space-evenly true
+                   :halign "fill"
+                   :valign "center"
+                   (hud-value
+                     :label "Util"
+                     :value {(hud-data.gpu.gpu_usage) ?: "—"}
+                     :subtitle "% load")
+                   (hud-value
+                     :label "VRAM used"
+                     :value {(hud-data.gpu.vram_used) ?: "—"}
+                     :subtitle "MiB")
+                   (hud-value
+                     :label "VRAM total"
+                     :value {(hud-data.gpu.vram_total) ?: "—"}
+                     :subtitle "MiB")
+                   (hud-value
+                     :label "Thermal"
+                     :value {(hud-data.gpu.temperature) ?: "—"}
+                     :subtitle "°C")))
+
+         (box :class "hud-card"
+              :hexpand true
+              (label :class "hud-card__title" :text "Git")
+              (hud-value
+                :label {(hud-data.git.repo) ?: "No repo"}
+                :value {(hud-data.git.branch) ?: "—"}
+                :subtitle {(hud-data.git.path) ?: ""})
+              (label :class "hud-card__title space-top" :text "Compile")
+              (hud-value
+                :label "Status"
+                :value {(hud-data.compile.status) ?: "idle"}
+                :subtitle {(hud-data.compile.detail) ?: ""}))
+
+         (box :class "hud-card"
+              :hexpand true
+              (label :class "hud-card__title" :text "Notifications")
+              (hud-value
+                :label "Pending"
+                :value {(hud-data.notifications.count) ?: 0}
+                :subtitle {(hud-data.notifications.last_summary) ?: "None"})
+              (label :class "hud-card__title space-top" :text "Network")
+              (box :class "net-stats"
+                   :orientation "vertical"
+                   :halign "end"
+                   :spacing 6
+                   (label :class "net-label"
+                          :text "↓ Mbps")
+                   (label :class "net-value"
+                          :text {(hud-data.network.down_mbps) ?: "0"})
+                   (label :class "net-graph"
+                          :text {(hud-data.network.down_graph) ?: ""})
+                   (label :class "net-label space-top"
+                          :text "↑ Mbps")
+                   (label :class "net-value"
+                          :text {(hud-data.network.up_mbps) ?: "0"})
+                   (label :class "net-graph"
+                          :text {(hud-data.network.up_graph) ?: ""})))))
+)
+
+(defwindow omarchy_hud
+  :monitor 0
+  :geometry (geometry :x "5%"
+                      :y "2%"
+                      :width "90%"
+                      :height "260px"
+                      :anchor "top left")
+  :stacking "fg"
+  :focusable false
+  :exclusive false
+  :wm-ignore true
+  (hud-panel))
+

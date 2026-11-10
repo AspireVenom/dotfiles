@@ -25,7 +25,10 @@ if [[ -f $SETTINGS ]]; then
   WINDOWS_ESP_PARTUUID=$(sed -n 's/^WINDOWS_ESP_PARTUUID=\([0-9a-fA-F-]*\)$/\1/p' "$SETTINGS" | tail -1)
 fi
 
+# timeout: the menu waits 5 minutes before booting the default entry, so the PC can be left at the
+# Windows/Linux choice (any key stops the countdown entirely).
 HEADER=(
+  "timeout: 300"
   "interface_branding: Aspire"
   "interface_branding_color: ef2a42"
   "interface_help_color: e6e3df"
